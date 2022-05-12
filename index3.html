@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Web</title>
+    <!-- <script src="https://kit.fontawesome.com/0d260de535.js" crossorigin="anonymous"></script> -->
+</head>
+
+<body>
+    <p id="day"></p>
+    <p id="date"></p>
+    <p id="time"></p>
+    <label for="search">Enter City Name : </label>
+    <input type="search" name="data" id="search_value" placeholder="Enter City Name">
+    <button type="submit" id="search_data">Search</button>
+    <p id="city"></p>
+    <p id="country"></p>
+    <p id="temp"></p>
+    <p id="feels_like"></p>
+    <p id="maxtemp"></p>
+    <p id="mintemp"></p>
+    <p id="error"></p>
+
+    <script>
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satday", "Sunday"];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        setInterval(timer, 1000);
+
+        function timer() {
+            const d = new Date();
+            document.getElementById('day').innerHTML = `Day : ${days[d.getDay()]}`;
+            document.getElementById('date').innerHTML =
+                `Date : ${d.getDate()}/${(d.getMonth() + 1)}/${d.getFullYear()}`;
+            document.getElementById('time').innerHTML =
+                `Time : ${d.toLocaleTimeString()}`;
+        };
+    </script>
+    <script>
+        let search_data = document.getElementById('search_data');
+        let search_value = document.getElementById('search_value');
+        let city = document.getElementById('city');
+        let country = document.getElementById('country');
+        let temp = document.getElementById('temp');
+        let maxtemp = document.getElementById('maxtemp');
+        let mintemp = document.getElementById('mintemp');
+        let feels_like = document.getElementById('feels_like');
+        let error = document.getElementById('error');
+
+        let output = async () => {
+            let tamp = search_value.value; // console.log(tamp);
+            let weather_api =
+                `https://api.openweathermap.org/data/2.5/weather?q=${tamp},in&appid=1b75f7542ef646f4b9125941281e62c1&units=metric`
+            let data = await fetch(weather_api);
+            let realdata = await data.json(); // console.log(realdata);
+            if (realdata.cod == 404)
+                error.innerHTML = realdata.message;
+            else if (tamp == "")
+                error.innerHTML = "Please, Enter Data.";
+            else {
+                let CITY = realdata.name;
+                let COUNTRY = realdata.sys.country;
+                let TEMP = realdata.main.temp;
+                let MAXTEMP = realdata.main.temp_max;
+                let MINTEMP = realdata.main.temp_min;
+                let FEELS_LIKE = realdata.main.feels_like;
+
+                let country_api = `https://countriesnow.space/api/v0.1/countries/iso`;
+                let country_data = await fetch(country_api);
+                let country_realdata = await country_data.json();
+                console.log(country_realdata);
+                for (let i = 0; i < 220; i++) {
+                    if (COUNTRY == country_realdata.data[i].Iso2) {
+                        let country_full_name = country_realdata.data[i].name;
+                        country.innerHTML = `Country : ${country_full_name}`;
+                    }
+                }
+                // country.innerHTML = `Country : ${COUNTRY}`;
+                city.innerHTML = `City : ${CITY}`;
+                temp.innerHTML = `Temperature : ${TEMP}`;
+                feels_like.innerHTML = `Feeling Temperature : ${FEELS_LIKE}`;
+                maxtemp.innerHTML = `Maximum Temperature : ${MAXTEMP}`;
+                mintemp.innerHTML = `Minimum Temperature : ${MINTEMP}`;
+
+            }
+        };
+        search_data.addEventListener("click", output);
+    </script>
+</body>
+
+</html>
